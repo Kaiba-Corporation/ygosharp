@@ -231,9 +231,6 @@ namespace YGOSharp
                 case GameMessage.AnnounceNumber:
                     OnAnnounceNumber(cmsg);
                     return 1;
-                case GameMessage.AnnounceCardFilter:
-                    OnAnnounceCardFilter(cmsg);
-                    return 1;
                 case GameMessage.CardHint:
                     SendToAll(cmsg, 9);
                     break;
@@ -765,21 +762,13 @@ namespace YGOSharp
         private void OnAnnounceCard(CoreMessage msg)
         {
             int player = msg.Reader.ReadByte();
-            msg.Reader.ReadBytes(4);
-            Game.WaitForResponse(player);
-            SendToPlayer(msg, player);
-        }
-
-        private void OnAnnounceNumber(CoreMessage msg)
-        {
-            int player = msg.Reader.ReadByte();
             int count = msg.Reader.ReadByte();
             msg.Reader.ReadBytes(count * 4);
             Game.WaitForResponse(player);
             SendToPlayer(msg, player);
         }
 
-        private void OnAnnounceCardFilter(CoreMessage msg)
+        private void OnAnnounceNumber(CoreMessage msg)
         {
             int player = msg.Reader.ReadByte();
             int count = msg.Reader.ReadByte();
