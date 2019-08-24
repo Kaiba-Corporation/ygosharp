@@ -899,6 +899,12 @@ namespace YGOSharp
             }
 
             TimeStop();
+
+            if (_timelimit[_lastresponse] + 5 >= Timer)
+                _timelimit[_lastresponse] = Timer;
+            else
+                _timelimit[_lastresponse] += 5;
+
             _duel.SetResponse(resp);
         }
 
