@@ -1201,12 +1201,24 @@ namespace YGOSharp
         
         private void HandleError(string error)
         {
+            const string log = "LuaErrors.log";
+            if (File.Exists(log))
+            {
+                foreach (string line in File.ReadAllLines(log))
+                {
+                    if (line == error)
+                        return;
+                }
+            }
+
+            StreamWriter writer = new StreamWriter(log, true);
+            writer.WriteLine(error);
+            writer.Close();
+
             BinaryWriter packet = GamePacketFactory.Create(StocMessage.Chat);
             packet.Write((short)PlayerType.Observer);
             packet.WriteUnicode(error, error.Length + 1);
             SendToAll(packet);
-
-            File.WriteAllText("lua_" + DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt", error);
         }
 
         private static List<int> ShuffleCards(Random rand, IEnumerable<int> cards)
