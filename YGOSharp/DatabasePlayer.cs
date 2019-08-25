@@ -47,8 +47,6 @@ namespace YGOSharp
                             Rank = reader.GetString("Rank");
                             Qualification = reader.GetInt32("Qualified");
                             Rating = Math.Max(Math.Max(reader.GetInt32("Rating"), reader.GetInt32("MRating")), reader.GetInt32("TRating"));
-                            if (Id == 754315 || Id == 753038)
-                                Rating = 2300;
                             IpAddress = reader.GetString("IP");
                             Border = reader.GetString("Border");
                             ImageUrl = reader.GetString("ImageURL");
