@@ -1336,6 +1336,28 @@ namespace YGOSharp
             }
 
             Winner = winner;
+
+            AddRewards();
+        }
+
+        private void AddRewards()
+        {
+            if (Players.Length != 2)
+                return;
+
+            if (Players[0].Database.Rank != "Bot" && Players[1].Database.Rank != "Bot")
+                return;
+
+            if (Players[0].Database.Rank == "Bot" && Winner == 0)
+                return;
+
+            if (Players[1].Database.Rank == "Bot" && Winner == 1)
+                return;
+
+            if (Players[0].Database.Rank != "Bot")
+                Players[0].Database.AddRewards();
+            else
+                Players[1].Database.AddRewards();
         }
 
         private void SendSleeves(Player toPlayer = null)

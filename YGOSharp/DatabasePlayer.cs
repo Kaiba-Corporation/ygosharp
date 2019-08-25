@@ -59,5 +59,15 @@ namespace YGOSharp
                     }
                 }
         }
+
+        public void AddRewards()
+        {
+            lock (Program.Database)
+                using (MySqlCommand cmd = Program.Database.Query("UPDATE account SET Gold = Gold + 50, XP = XP + 50 WHERE ID = ?id"))
+                {
+                    cmd.Parameters.Add(new MySqlParameter("?id", Id));
+                    cmd.ExecuteNonQuery();
+                }
+        }
     }
 } 
