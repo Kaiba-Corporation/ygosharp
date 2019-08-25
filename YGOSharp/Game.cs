@@ -516,6 +516,10 @@ namespace YGOSharp
             State = GameState.Hand;
             SendToAll(GamePacketFactory.Create(StocMessage.DuelStart));
 
+            SendSleeves();
+            SendAvatars();
+            SendBorders();
+
             SendHand();
 
             if (OnGameStart != null)
@@ -1242,6 +1246,10 @@ namespace YGOSharp
 
         private void InitNewSpectator(Player player)
         {
+            SendSleeves(player);
+            SendAvatars(player);
+            SendBorders(player);
+
             BinaryWriter packet = GamePacketFactory.Create(GameMessage.Start);
             packet.Write((byte)(_swapped ? 0x11 : 0x10));
             packet.Write((byte)MasterRule);
@@ -1328,6 +1336,149 @@ namespace YGOSharp
             }
 
             Winner = winner;
+        }
+
+        private void SendSleeves(Player toPlayer = null)
+        {
+            string team1Sleeve = Players[0].Database.CardBackUrl;
+            string team2Sleeve = Players[IsTag ? 2 : 1].Database.CardBackUrl;
+
+            SendTeamSleeve(team1Sleeve, 0, toPlayer);
+            SendTeamSleeve(team2Sleeve, 1, toPlayer);
+        }
+
+        private void SendTeamSleeve(string textureUrl, int team, Player toPlayer)
+        {
+            string host, file;
+            if (!ParseTextureUrl(textureUrl, out host, out file))
+                return;
+
+            if (toPlayer == null)
+            {
+                BinaryWriter update = CreateUpdateTexture(0, 0, host, file);
+                SendToTeam(update, team);
+                update = CreateUpdateTexture(0, 1, host, file);
+                SendToTeam(update, 1 - team);
+                update = CreateUpdateTexture(0, team, host, file);
+                SendToObservers(update);
+            }
+            else
+            {
+                BinaryWriter update = CreateUpdateTexture(0, team, host, file);
+                toPlayer.Send(update);
+            }
+        }
+
+        private void SendAvatars(Player toPlayer = null)
+        {
+            for (int i = 0; i < Players.Length; i++)
+            {
+                if (!Players[i].Database.IsValid)
+                    continue;
+                SendPlayerAvatar(Players[i].Database.ImageUrl, i, toPlayer);
+                SendPlayerRank(Players[i].Database.Rating, Players[i].Database.Qualification, i, toPlayer);
+            }
+        }
+
+        private void SendPlayerAvatar(string textureUrl, int player, Player toPlayer)
+        {
+            string host, file;
+            if (!ParseTextureUrl(textureUrl, out host, out file))
+                return;
+            BinaryWriter update = CreateUpdateTexture(1, player, host, file);
+
+            if (toPlayer == null)
+                SendToAll(update);
+            else
+                toPlayer.Send(update);
+        }
+
+        private void SendBorders(Player toPlayer = null)
+        {
+            for (int i = 0; i < Players.Length; i++)
+            {
+                if (!Players[i].Database.IsValid)
+                    continue;
+                int team = IsTag ? (i < 2 ? 0 : 1) : (i);
+
+                if (toPlayer == null)
+                {
+                    SendToTeam(CreateUpdateTexture(3, i, "", Players[i].Database.Border), team);
+                    Console.WriteLine(CreateUpdateTexture(3, i, "", Players[i].Database.Border));
+                    SendToTeam(CreateUpdateTexture(3, i, "", Players[i].Database.Border + " 2"), 1 - team);
+                    SendToObservers(CreateUpdateTexture(3, i, "", Players[i].Database.Border + (team == 1 ? " 2" : "")));
+                }
+                else
+                    toPlayer.Send(CreateUpdateTexture(3, i, "", Players[i].Database.Border + (team == 1 ? " 2" : "")));
+            }
+        }
+
+        private void SendPlayerRank(int rating, int qualification, int player, Player toPlayer)
+        {
+            int[] ranks = { 1400, 1550, 1700, 1850, 2000, 2150 };
+            int rank = ranks.Length;
+            for (int i = 0; i < ranks.Length; i++)
+            {
+                if (rating <= ranks[i])
+                {
+                    rank = i;
+                    break;
+                }
+            }
+
+            rank++;
+
+            if (qualification == 2)
+                rank += 10;
+
+            if (qualification >= 3)
+                rank += 20;
+
+            BinaryWriter update = CreateUpdateTexture(2, player, rank);
+            if (toPlayer == null)
+                SendToAll(update);
+            else
+                toPlayer.Send(update);
+        }
+
+        private static bool ParseTextureUrl(string textureUrl, out string host, out string file)
+        {
+            host = null;
+            file = null;
+
+            if (string.IsNullOrEmpty(textureUrl))
+                return false;
+
+            Uri uri;
+            if (!Uri.TryCreate(textureUrl, UriKind.Absolute, out uri))
+                return false;
+
+            host = "http://" + uri.Host + "/";
+            file = uri.AbsolutePath;
+
+            return true;
+        }
+
+        private static BinaryWriter CreateUpdateTexture(int type, int player, string host, string file)
+        {
+            BinaryWriter sleeve = GamePacketFactory.Create(StocMessage.UpdateTexture);
+            sleeve.Write((short)type);
+            sleeve.Write((short)player);
+            sleeve.Write((short)0);
+            sleeve.WriteUnicode(host, 256);
+            sleeve.WriteUnicode(file, 256);
+            return sleeve;
+        }
+
+        private static BinaryWriter CreateUpdateTexture(int type, int player, int textureId)
+        {
+            BinaryWriter sleeve = GamePacketFactory.Create(StocMessage.UpdateTexture);
+            sleeve.Write((short)type);
+            sleeve.Write((short)player);
+            sleeve.Write((short)textureId);
+            sleeve.WriteUnicode("", 256);
+            sleeve.WriteUnicode("", 256);
+            return sleeve;
         }
     }
 }

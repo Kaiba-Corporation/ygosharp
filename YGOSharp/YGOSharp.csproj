@@ -37,8 +37,12 @@
     <StartupObject>YGOSharp.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data">
+      <HintPath>..\..\..\Kaiba Corporation\Game Server\YgoCore\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddonsManager.cs" />
@@ -49,6 +53,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="CoreMessage.cs" />
     <Compile Include="CoreServer.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="DatabasePlayer.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameAnalyser.cs" />

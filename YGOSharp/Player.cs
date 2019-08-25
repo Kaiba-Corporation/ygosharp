@@ -13,6 +13,7 @@ namespace YGOSharp
         public int Type { get; set; }
         public Deck Deck { get; private set; }
         public PlayerState State { get; set; }
+        public DatabasePlayer Database { get; private set; }
         private YGOClient _client;
 
         public Player(Game game, YGOClient client)
@@ -117,6 +118,7 @@ namespace YGOSharp
             if (Name != null)
                 return;
             Name = packet.ReadUnicode(20);
+            Database = new DatabasePlayer(Name);
         }
 
         private void OnCreateGame(BinaryReader packet)

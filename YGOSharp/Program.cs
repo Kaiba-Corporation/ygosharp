@@ -10,6 +10,7 @@ namespace YGOSharp
     public class Program
     {
         public static uint ClientVersion = 0x133D;
+        public static Database Database;
 
         public static void Main(string[] args)
         {
@@ -17,6 +18,8 @@ namespace YGOSharp
             try
             {
 #endif
+                Database = new Database();
+
                 Config.Load(args);
 
                 BanlistManager.Init(Config.GetString("BanlistFile", "lflist.conf"));
