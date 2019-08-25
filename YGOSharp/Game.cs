@@ -629,7 +629,7 @@ namespace YGOSharp
 
             _duel.InitPlayers(StartLp, StartHand, DrawCount);
 
-            int opt = 0;
+            int opt = MasterRule << 16;
             if (EnablePriority)
                 opt += 0x08;
             if (NoShuffleDeck)
