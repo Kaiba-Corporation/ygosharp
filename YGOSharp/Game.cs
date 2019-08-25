@@ -461,6 +461,9 @@ namespace YGOSharp
                 if (player.Deck != null)
                 {
                     result = NoCheckDeck ? 0 : player.Deck.Check(Banlist, ocg, tcg);
+
+                    if (result == 0)
+                        result = player.Deck.CheckCardSkins(player.Database.CardSkins);
                 }
                 if (result != 0)
                 {

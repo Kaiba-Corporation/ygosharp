@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -119,6 +122,29 @@ namespace YGOSharp
                     return false;
             }
             return true;
+        }
+
+        public int CheckCardSkins(string ownedSkins)
+        {
+            List<int> CustomCards = new List<int> { 3, 4, 7, 8, 11, 12, 13, 14, 16, 17, 22, 23, 24, 69, 70, 420, 55555, 19558409, 26630260, 1234512345, 1234512346, 1234612345 };
+            List<int> Deck = Main.Concat(Side).Concat(Extra).ToList();
+
+            List<int> OwnedSpecialCards = new List<int>();
+            if (ownedSkins != "" && ownedSkins != null)
+                OwnedSpecialCards = Regex.Split(ownedSkins, ",").Select(int.Parse).ToList();
+
+            List<int> DeckSpecialCards = new List<int>();
+            foreach (int card in Deck)
+                if (card >= 800000000 && card < 900000000)
+                    DeckSpecialCards.Add(card);
+                else if (CustomCards.Contains(card))
+                    DeckSpecialCards.Add(card);
+
+            foreach (int card in DeckSpecialCards)
+                if (!OwnedSpecialCards.Contains(card))
+                    return card;
+
+            return 0;
         }
 
         private static void AddToCards(IDictionary<int, int> cards, Card card)
