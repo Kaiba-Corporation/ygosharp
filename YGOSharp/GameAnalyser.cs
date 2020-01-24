@@ -280,6 +280,7 @@ namespace YGOSharp
                 case 7:
                 case 8:
                 case 9:
+                case 11:
                     Game.SendToAllBut(packet, player);
                     break;
                 case 10:
